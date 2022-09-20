@@ -42,7 +42,6 @@
           <serviceDebug includeExceptionDetailInFaults="True" />
         </behavior>
       </serviceBehaviors>
-      kalhmera
     </behaviors>
   </system.serviceModel>
 </configuration>
