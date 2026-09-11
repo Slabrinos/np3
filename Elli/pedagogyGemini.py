@@ -13,7 +13,7 @@ from evaluator import (
 )
 
 
-GEMINI_API_KEY = ("AQ.Ab8RN6J1lFQ3DZSrUj5DcsjNFiS6AHO0Sz45LXVHqpNtMl77rQ")
+GEMINI_API_KEY = (".")
 GEMINI_MODEL = "gemini-3.6-flash"
 
 
