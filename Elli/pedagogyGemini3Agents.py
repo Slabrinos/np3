@@ -5,8 +5,6 @@ from typing import Dict, Any, List
 from pedagogyGemini import FreePedagogicalAgent
 
 # Standard initialization constants assumed by your environment
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-
 
 class BeginnerScaffoldingAgent(FreePedagogicalAgent):
     """
@@ -26,10 +24,14 @@ class BeginnerScaffoldingAgent(FreePedagogicalAgent):
 
     def evaluate(self, exercise_text: str, row: Dict[str, Any]) -> Dict[str, Any]:
         # Force beginner bias in row context before invoking base logic or custom processing
+        json_EvalColumns = """{
+    "verified_issue": "string",
+    "scaffolding_guidance": "string",
+}"""
         row_copy = dict(row)
         if not row_copy.get("learning_profile"):
             row_copy["learning_profile"] = "beginner_foundational"
-        return super().evaluate(exercise_text, row_copy)
+        return super().evaluate(exercise_text, row_copy, json_EvalColumns)
 
 
 class CodeOptimizationAgent(FreePedagogicalAgent):
@@ -47,6 +49,16 @@ class CodeOptimizationAgent(FreePedagogicalAgent):
             "Προκαλείς τον φοιτητή να σκεφτεί πιο προηγμένες λύσεις. "
             "Επιστρέφεις ΜΟΝΟ JSON."
         )
+    def evaluate(self, exercise_text: str, row: Dict[str, Any]) -> Dict[str, Any]:
+        # Force beginner bias in row context before invoking base logic or custom processing
+        json_EvalColumns = """{
+                    "student_level": "beginner",
+                    "next_step_challenge": "..."
+                    }"""
+        row_copy = dict(row)
+        if not row_copy.get("learning_profile"):
+            row_copy["learning_profile"] = "beginner_foundational"
+        return super().evaluate(exercise_text, row_copy, json_EvalColumns)
 
 
 class SocraticDebuggingAgent(FreePedagogicalAgent):
@@ -63,3 +75,12 @@ class SocraticDebuggingAgent(FreePedagogicalAgent):
             "και την ροή εκτέλεσης (tracing), καθοδηγώντας τον φοιτητή να "
             "εντοπίσει μόνος του το σημείο αποτυχίας. Επιστρέφεις ΜΟΝΟ JSON."
         )
+    def evaluate(self, exercise_text: str, row: Dict[str, Any]) -> Dict[str, Any]:
+        # Force beginner bias in row context before invoking base logic or custom processing
+        json_EvalColumns = """{
+                    "recommended_resources": []
+                            }"""
+        row_copy = dict(row)
+        if not row_copy.get("learning_profile"):
+            row_copy["learning_profile"] = "beginner_foundational"
+        return super().evaluate(exercise_text, row_copy, json_EvalColumns)

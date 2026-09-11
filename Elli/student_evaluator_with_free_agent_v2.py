@@ -13,6 +13,7 @@ from unittest.mock import patch
 from docx import Document
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+from sympy import limit
 
 #from pedagogyOpenAI import FreePedagogicalAgent
 from pedagogyGemini import FreePedagogicalAgent
@@ -941,37 +942,56 @@ def attach_free_agent_feedback(
             "agent_evaluator_consistency": True,
         }.items():
             output[column] = default
-        return output
-
-    #agent = FreePedagogicalAgent()
-    agent = BeginnerScaffoldingAgent();
-    #agent2 = CodeOptimizationAgent();
-    #agnet3 = SocraticDebuggingAgent();
-    feedback_rows: List[Dict[str, Any]] = []
-
+ 
     for position, (_, row) in enumerate(output.iterrows()):
         row_dict = row.to_dict()
 
-        # Σωστή λύση: δεν καλείται καν ο agent και δεν δίνεται ανατροφοδότηση.
         if not needs_pedagogical_feedback(row_dict):
             feedback = empty_pedagogical_feedback()
         elif limit is not None and position >= limit:
             feedback = fallback_pedagogical_feedback(row_dict)
             feedback["agent_status"] = "not_run_due_to_limit"
         else:
-            feedback = agent.evaluate(
-                exercise_text=exercise_text,
-                row=row_dict,
-            )
-
-        feedback_rows.append(feedback)
-
-    feedback_df = pd.DataFrame(feedback_rows, index=output.index)
- 
-    for column in feedback_df.columns:
-        output[column] = feedback_df[column]
+            output = Evaluate_with_agents(results=output, exercise_text=exercise_text, enabled=True, limit=limit, row_dict=row_dict)
 
     return output
+
+def Evaluate_with_agents(results: pd.DataFrame, exercise_text: str, enabled: bool, limit: Optional[int] = None, row_dict: Dict[str, Any] = None) -> pd.DataFrame:
+    output = results.copy()
+    agent = FreePedagogicalAgent()
+    #agent = BeginnerScaffoldingAgent();
+    agent2 = CodeOptimizationAgent();
+    agent3 = SocraticDebuggingAgent();
+        
+    feedback_rows: List[Dict[str, Any]] = [] 
+    feedback_rows2: List[Dict[str, Any]] = [] 
+    feedback_rows3: List[Dict[str, Any]] = [] 
+
+    feedback = agent.evaluate(exercise_text=exercise_text, row=row_dict, json_EvalColumns=None);    
+    feedback_rows.append(feedback)
+    for row in feedback_rows:
+        print(f"{row}\n")
+    feedback_df = pd.DataFrame(feedback_rows, index=output.index)
+    for column in feedback_df.columns:
+        output[column] = feedback_df[column]
+    return output
+    
+
+    feedback2 = agent2.evaluate(exercise_text='', row=row_dict);
+    feedback_rows2.append(feedback2);
+    feedback_df2 = pd.DataFrame(feedback_rows2, index = output.index);
+    for column in feedback_df2.columns:
+        output[column] = feedback_df2[column]
+
+
+    feedback3 = agent3.evaluate(exercise_text='', row=row_dict);
+    feedback_rows3.append(feedback3);
+    feedback_df3 = pd.DataFrame(feedback_rows3, index = output.index);
+    for column in feedback_df3.columns:
+        output[column] = feedback_df3[column]
+    return output
+
+
 def suppress_feedback_for_correct_solutions(results: pd.DataFrame) -> pd.DataFrame:
     """
     Καθαρίζει κάθε περιγραφική ή διορθωτική ανατροφοδότηση από σωστές λύσεις.
@@ -1105,13 +1125,13 @@ def main() -> None:
     results = attach_resources(results)
     results = suppress_feedback_for_correct_solutions(results)
 
-    # Ο agent προσθέτει μόνο παιδαγωγικές στήλες.
-    # Δεν αλλάζει καμία διάγνωση ή βαθμολογία evaluator.
+    #Ο agent προσθέτει μόνο παιδαγωγικές στήλες.
+    #Δεν αλλάζει καμία διάγνωση ή βαθμολογία evaluator.
     results = attach_free_agent_feedback(
         results=results,
         exercise_text=exercise_text,
         enabled=not args.no_agent,
-        limit=args.agent_limit,
+       limit=args.agent_limit,
     )
     results = suppress_feedback_for_correct_solutions(results)
 

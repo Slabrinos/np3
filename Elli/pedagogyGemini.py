@@ -12,8 +12,8 @@ from evaluator import (
     fallback_pedagogical_feedback,
 )
 
-GEMINI_API_KEY = ("AIzaSyAdLn4xTdXn0uxKS7F7zqmV_LJFBK0e7jk")
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_API_KEY = ("AQ.Ab8RN6J1lFQ3DZSrUj5DcsjNFiS6AHO0Sz45LXVHqpNtMl77rQ")
+GEMINI_MODEL = "gemini-3.6-flash"
 
 
 class FreePedagogicalAgent:
@@ -34,7 +34,7 @@ class FreePedagogicalAgent:
         self.init_error = ""
 
         try:
-            api_key = os.getenv("GEMINI_API_KEY")
+            api_key = GEMINI_API_KEY
 
             if not api_key:
                 raise RuntimeError(
@@ -157,7 +157,8 @@ class FreePedagogicalAgent:
         self,
         exercise_text: str,
         row: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        json_EvalColumns: str
+        ) -> Dict[str, Any]:
 
         if not needs_pedagogical_feedback(row):
             return empty_pedagogical_feedback()
@@ -253,6 +254,8 @@ class FreePedagogicalAgent:
   "recommended_resources": []
 }}
 
+        
+
 Κανόνες:
 
 1. Αν algorithm_score >= 85 και δεν υπάρχει
@@ -286,6 +289,7 @@ class FreePedagogicalAgent:
     χωρίς ```json και χωρίς επιπλέον κείμενο.
 """
 
+        prompt+=verified["learning_profile"]+verified["recommendation"]+verified["strengths"]+verified["weaknesses"]+verified["syntax_explanation"]+verified["syntax_error_type"];
         try:
             response = self.client.models.generate_content(
                 model=self.model_name,
@@ -296,7 +300,7 @@ class FreePedagogicalAgent:
                         "Python tutor. Επιστρέφεις μόνο JSON."
                     ),
                     temperature=0,
-                    max_output_tokens=650,
+                    max_output_tokens=30000,
                     response_mime_type="application/json",
                 ),
             )
