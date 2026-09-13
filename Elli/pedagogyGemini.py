@@ -177,6 +177,7 @@ class FreePedagogicalAgent:
         # Αυτά τα δεδομένα προέρχονται αποκλειστικά από evaluator.
         # ---------------------------------------------------------
 
+
         try:
             algorithm_score = float(
                 row.get("algorithm_score", 0) or 0
