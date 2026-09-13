@@ -250,7 +250,7 @@ class FreePedagogicalAgent:
 {{
   "verified_issue": "...",
   "scaffolding_guidance": "...",
-  "student_level": "beginner",
+  "student_level": "beginner0",
   "next_step_challenge": "...",
   "recommended_resources": []
 }}
@@ -290,7 +290,7 @@ class FreePedagogicalAgent:
     χωρίς ```json και χωρίς επιπλέον κείμενο.
 """
 
-        prompt+=verified["learning_profile"]+verified["recommendation"]+verified["strengths"]+verified["weaknesses"]+verified["syntax_explanation"]+verified["syntax_error_type"];
+        #prompt+=verified["learning_profile"]+verified["recommendation"]+verified["strengths"]+verified["weaknesses"]+verified["syntax_explanation"]+verified["syntax_error_type"];
         try:
             response = self.client.models.generate_content(
                 model=self.model_name,
@@ -330,7 +330,7 @@ class FreePedagogicalAgent:
                 parsed.get("student_level"),
                 fallback.get(
                     "agent_student_level",
-                    "beginner",
+                    "beginner1",
                 ),
             )
 

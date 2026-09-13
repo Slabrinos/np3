@@ -929,8 +929,9 @@ def attach_free_agent_feedback(
     """
     Προσθέτει νέες AI στήλες. Δεν πειράζει καμία υπάρχουσα στήλη evaluator.
     """
-    output = results.copy()
-
+    output2 = results.copy()
+    for row in output2.itertuples(index=False):
+        print(f"student_id={row.student_id}, algorithm_score={row.algorithm_score}, function_score={row.function_score}, main_score={row.main_score}, needs_learning_material={row.needs_learning_material}\n")
     if not enabled:
         for column, default in {
             "agent_verified_issue": "",
@@ -942,8 +943,8 @@ def attach_free_agent_feedback(
             "agent_evaluator_consistency": True,
         }.items():
             output[column] = default
- 
-    for position, (_, row) in enumerate(output.iterrows()):
+    feedbacks: List[Dict[str, Any]] = []
+    for position, (_, row) in enumerate(output2.iterrows()):
         row_dict = row.to_dict()
 
         if not needs_pedagogical_feedback(row_dict):
@@ -952,12 +953,22 @@ def attach_free_agent_feedback(
             feedback = fallback_pedagogical_feedback(row_dict)
             feedback["agent_status"] = "not_run_due_to_limit"
         else:
-            output = Evaluate_with_agents(results=output, exercise_text=exercise_text, enabled=True, limit=limit, row_dict=row_dict)
-
-    return output
+            #output2 = Evaluate_with_agents(results=output2, exercise_text=exercise_text, enabled=True, limit=limit, row_dict=row_dict)
+            feedback = Evaluate_with_agents(results=output2, exercise_text=exercise_text, enabled=True, limit=limit, row_dict=row_dict).iloc[position].to_dict()
+        feedbacks.append(feedback)
+    # Assign back to your dataframe safely after the loop
+    feedback_df = pd.DataFrame(feedbacks)
+    for col in feedback_df.columns:
+        output2[col] = feedback_df[col].values
+        
+    for row in output2.itertuples(index=False):
+        print(f"{row.agent_student_level}\n")
+    return output2
 
 def Evaluate_with_agents(results: pd.DataFrame, exercise_text: str, enabled: bool, limit: Optional[int] = None, row_dict: Dict[str, Any] = None) -> pd.DataFrame:
     output = results.copy()
+    print(f"Running FreePedagogicalAgent for student_id={row_dict.get('student_id')}...\n")
+
     agent = FreePedagogicalAgent()
     #agent = BeginnerScaffoldingAgent();
     agent2 = CodeOptimizationAgent();
@@ -969,14 +980,20 @@ def Evaluate_with_agents(results: pd.DataFrame, exercise_text: str, enabled: boo
 
     feedback = agent.evaluate(exercise_text=exercise_text, row=row_dict, json_EvalColumns=None);    
     feedback_rows.append(feedback)
+
+    print(f"{len(feedback_rows)} feedback rows generated.\n")
     for row in feedback_rows:
-        print(f"{row}\n")
+        print(f"agent_verified_issue: {row.get('agent_verified_issue')} \n")
+        print(f"agent_status: {row.get('agent_status')} \n")
+        print(f"agent_error_message: {row.get('agent_error_message')} \n")
+
     feedback_df = pd.DataFrame(feedback_rows, index=output.index)
     for column in feedback_df.columns:
         output[column] = feedback_df[column]
-    return output
-    
 
+    return output
+
+"""
     feedback2 = agent2.evaluate(exercise_text='', row=row_dict);
     feedback_rows2.append(feedback2);
     feedback_df2 = pd.DataFrame(feedback_rows2, index = output.index);
@@ -988,8 +1005,8 @@ def Evaluate_with_agents(results: pd.DataFrame, exercise_text: str, enabled: boo
     feedback_rows3.append(feedback3);
     feedback_df3 = pd.DataFrame(feedback_rows3, index = output.index);
     for column in feedback_df3.columns:
-        output[column] = feedback_df3[column]
-    return output
+    output[column] = feedback_df3[column]
+"""
 
 
 def suppress_feedback_for_correct_solutions(results: pd.DataFrame) -> pd.DataFrame:
