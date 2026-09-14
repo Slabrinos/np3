@@ -6,11 +6,8 @@ from pedagogyGemini import FreePedagogicalAgent
 
 # Standard initialization constants assumed by your environment
 
-class BeginnerScaffoldingAgent(FreePedagogicalAgent):
+class A1(FreePedagogicalAgent):
     """
-    1. Beginner Scaffolding Agent
-    Focuses on low-level foundational concepts, breaking down Python syntax, 
-    and providing heavy step-by-step scaffolding questions without spoiling solutions.
     """
     def __init__(self) -> None:
         super().__init__()
@@ -22,23 +19,17 @@ class BeginnerScaffoldingAgent(FreePedagogicalAgent):
             "χωρίς να δίνεις έτοιμες λύσεις. Επιστρέφεις ΜΟΝΟ JSON."
         )
 
-    def evaluate(self, exercise_text: str, row: Dict[str, Any]) -> Dict[str, Any]:
+    def evaluate(self, exercise_text: str, row: Dict[str, Any], json_EvalColumns: str = None) -> Dict[str, Any]:
         # Force beginner bias in row context before invoking base logic or custom processing
-        json_EvalColumns = """{
-    "verified_issue": "string",
-    "scaffolding_guidance": "string",
-}"""
+        
         row_copy = dict(row)
         if not row_copy.get("learning_profile"):
             row_copy["learning_profile"] = "beginner_foundational"
         return super().evaluate(exercise_text, row_copy, json_EvalColumns)
 
 
-class CodeOptimizationAgent(FreePedagogicalAgent):
+class A2(FreePedagogicalAgent):
     """
-    2. Code Optimization & Best Practices Agent
-    Tailored for intermediate/advanced students who write functional code but 
-    need guidance on Pythonic idioms, algorithmic complexity, and clean code.
     """
     def __init__(self) -> None:
         super().__init__()
@@ -49,7 +40,7 @@ class CodeOptimizationAgent(FreePedagogicalAgent):
             "Προκαλείς τον φοιτητή να σκεφτεί πιο προηγμένες λύσεις. "
             "Επιστρέφεις ΜΟΝΟ JSON."
         )
-    def evaluate(self, exercise_text: str, row: Dict[str, Any]) -> Dict[str, Any]:
+    def evaluate(self, exercise_text: str, row: Dict[str, Any], json_EvalColumns: str = None) -> Dict[str, Any]:
         # Force beginner bias in row context before invoking base logic or custom processing
         json_EvalColumns = """{
                     "student_level": "beginner",
@@ -61,11 +52,8 @@ class CodeOptimizationAgent(FreePedagogicalAgent):
         return super().evaluate(exercise_text, row_copy, json_EvalColumns)
 
 
-class SocraticDebuggingAgent(FreePedagogicalAgent):
+class A3(FreePedagogicalAgent):
     """
-    3. Socratic Debugging Agent
-    Focuses purely on guided questioning to lead students to discover their own 
-    runtime or logic errors through targeted edge cases and trace reasoning.
     """
     def __init__(self) -> None:
         super().__init__()
@@ -75,7 +63,7 @@ class SocraticDebuggingAgent(FreePedagogicalAgent):
             "και την ροή εκτέλεσης (tracing), καθοδηγώντας τον φοιτητή να "
             "εντοπίσει μόνος του το σημείο αποτυχίας. Επιστρέφεις ΜΟΝΟ JSON."
         )
-    def evaluate(self, exercise_text: str, row: Dict[str, Any]) -> Dict[str, Any]:
+    def evaluate(self, exercise_text: str, row: Dict[str, Any], json_EvalColumns: str = None) -> Dict[str, Any]:
         # Force beginner bias in row context before invoking base logic or custom processing
         json_EvalColumns = """{
                     "recommended_resources": []

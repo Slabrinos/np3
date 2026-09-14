@@ -165,7 +165,6 @@ class FreePedagogicalAgent:
             return empty_pedagogical_feedback()
 
         fallback = fallback_pedagogical_feedback(row)
-
         if not self.available or self.client is None:
             fallback["agent_status"] = (
                 f"agent_unavailable: {self.init_error}"
@@ -248,15 +247,8 @@ class FreePedagogicalAgent:
 
 Το JSON πρέπει να έχει ακριβώς αυτή τη μορφή:
 
-{{
-  "verified_issue": "...",
-  "scaffolding_guidance": "...",
-  "student_level": "beginner0",
-  "next_step_challenge": "...",
-  "recommended_resources": []
-}}
-
-        
+{json_EvalColumns}
+      
 
 Κανόνες:
 
@@ -289,9 +281,11 @@ class FreePedagogicalAgent:
 
 10. Επέστρεψε μόνο JSON, χωρίς markdown,
     χωρίς ```json και χωρίς επιπλέον κείμενο.
+
+11. Επεστρεψε "student_level": που να εξαρτάται από το verified learning_profile και
+    από το verified algorithm_score.
 """
 
-        #prompt+=verified["learning_profile"]+verified["recommendation"]+verified["strengths"]+verified["weaknesses"]+verified["syntax_explanation"]+verified["syntax_error_type"];
         try:
             response = self.client.models.generate_content(
                 model=self.model_name,
@@ -331,7 +325,7 @@ class FreePedagogicalAgent:
                 parsed.get("student_level"),
                 fallback.get(
                     "agent_student_level",
-                    "beginner1",
+                    "beginner",
                 ),
             )
 

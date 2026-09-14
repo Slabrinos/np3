@@ -16,10 +16,10 @@ from sklearn.preprocessing import StandardScaler
 from sympy import limit
 
 #from pedagogyOpenAI import FreePedagogicalAgent
-from pedagogyGemini import FreePedagogicalAgent
-from pedagogyGemini3Agents import BeginnerScaffoldingAgent
-from pedagogyGemini3Agents import CodeOptimizationAgent
-from pedagogyGemini3Agents import SocraticDebuggingAgent
+#from pedagogyGemini import FreePedagogicalAgent
+from pedagogyGemini3Agents import A1
+from pedagogyGemini3Agents import A2
+from pedagogyGemini3Agents import A3
 from evaluator import (
     needs_pedagogical_feedback,
     empty_pedagogical_feedback,
@@ -942,7 +942,7 @@ def attach_free_agent_feedback(
             "agent_status": "disabled",
             "agent_evaluator_consistency": True,
         }.items():
-            output[column] = default
+            output2[column] = default
     feedbacks: List[Dict[str, Any]] = []
     for position, (_, row) in enumerate(output2.iterrows()):
         row_dict = row.to_dict()
@@ -969,43 +969,47 @@ def Evaluate_with_agents(results: pd.DataFrame, exercise_text: str, enabled: boo
     output = results.copy()
     print(f"Running FreePedagogicalAgent for student_id={row_dict.get('student_id')}...\n")
 
-    agent = FreePedagogicalAgent()
-    #agent = BeginnerScaffoldingAgent();
-    agent2 = CodeOptimizationAgent();
-    agent3 = SocraticDebuggingAgent();
+    #agent = FreePedagogicalAgent()
+    agent1 = A1();
+    agent2 = A2();
+    agent3 = A3();
         
     feedback_rows: List[Dict[str, Any]] = [] 
     feedback_rows2: List[Dict[str, Any]] = [] 
     feedback_rows3: List[Dict[str, Any]] = [] 
 
-    feedback = agent.evaluate(exercise_text=exercise_text, row=row_dict, json_EvalColumns=None);    
+    json_EvalColumns1 = """{
+        "verified_issue": "string",
+        "scaffolding_guidance": "string"
+    }"""
+    feedback = agent1.evaluate(exercise_text=exercise_text, row=row_dict, json_EvalColumns=json_EvalColumns1);    
     feedback_rows.append(feedback)
-
-    print(f"{len(feedback_rows)} feedback rows generated.\n")
-    for row in feedback_rows:
-        print(f"agent_verified_issue: {row.get('agent_verified_issue')} \n")
-        print(f"agent_status: {row.get('agent_status')} \n")
-        print(f"agent_error_message: {row.get('agent_error_message')} \n")
-
     feedback_df = pd.DataFrame(feedback_rows, index=output.index)
     for column in feedback_df.columns:
         output[column] = feedback_df[column]
 
-    return output
-
-"""
-    feedback2 = agent2.evaluate(exercise_text='', row=row_dict);
+    json_EvalColumns2 = """{
+                "student_level": "string"
+            }"""
+    feedback2 = agent2.evaluate(exercise_text=exercise_text, row=row_dict, json_EvalColumns=json_EvalColumns2);
     feedback_rows2.append(feedback2);
     feedback_df2 = pd.DataFrame(feedback_rows2, index = output.index);
     for column in feedback_df2.columns:
         output[column] = feedback_df2[column]
 
-
-    feedback3 = agent3.evaluate(exercise_text='', row=row_dict);
+    json_EvalColumns3 = """{
+                        "next_step_challenge": "...",
+                        "recommended_resources": []
+    }"""
+    feedback3 = agent3.evaluate(exercise_text=exercise_text, row=row_dict, json_EvalColumns=json_EvalColumns3);
     feedback_rows3.append(feedback3);
     feedback_df3 = pd.DataFrame(feedback_rows3, index = output.index);
     for column in feedback_df3.columns:
-    output[column] = feedback_df3[column]
+        output[column] = feedback_df3[column]
+
+    return output
+
+"""
 """
 
 
