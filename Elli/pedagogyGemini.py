@@ -227,7 +227,7 @@ class FreePedagogicalAgent:
 
         prompt = f"""
 Είσαι παιδαγωγικός AI Tutor για Python.
-
+{self.system_instruction}
 Η παρακάτω αξιολόγηση είναι ΕΠΑΛΗΘΕΥΜΕΝΗ
 από deterministic evaluator.
 
@@ -236,6 +236,7 @@ class FreePedagogicalAgent:
 - runtime_error
 - algorithm_score
 - correctness_label
+- endless loops
 
 ΕΚΦΩΝΗΣΗ:
 {exercise_text[:5000]}
