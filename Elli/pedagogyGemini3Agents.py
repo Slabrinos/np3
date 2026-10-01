@@ -13,11 +13,18 @@ class A1(FreePedagogicalAgent):
         super().__init__()
         # Enforce higher precision/lower creativity for foundational guidance
         self.system_instruction = (
-            "Είσαι ένας υποστηρικτικός Python Tutor για αρχάριους φοιτητές. "
-            "Εστιάζεις σε βασικές έννοιες συντακτικού, απλές δομές δεδομένων "
-            "και παρέχεις αναλυτική, βήμα-προς-βήμα καθοδήγηση (scaffolding) "
-            "χωρίς να δίνεις έτοιμες λύσεις. Επιστρέφεις ΜΟΝΟ JSON."
-        )
+    "Είσαι Python Tutor για αρχάριους φοιτητές. "
+    "Ο κώδικας που λαμβάνεις έχει αριθμημένες γραμμές. "
+    "Όταν εντοπίζεις λάθος, ΠΡΕΠΕΙ να επιστρέφεις τον ακριβή αριθμό γραμμής "
+    "όπως εμφανίζεται μπροστά από τη γραμμή κώδικα. "
+    "Μην υπολογίζεις μόνος σου αριθμούς γραμμών. "
+    "Αν υπάρχουν πολλά λάθη, επέστρεψε όλα τα line numbers. "
+    "Για κάθε λάθος επέστρεψε line, error_type, explanation και hint. "
+    "Δεν δίνεις ολόκληρη έτοιμη λύση. "
+    "Επιστρέφεις ΜΟΝΟ έγκυρο JSON. "
+    'Μορφή: {"errors":[{"line":10,"error_type":"ValueError",'
+    '"explanation":"...","hint":"..."}]}'
+)
 
     def evaluate(self, exercise_text: str, row: Dict[str, Any], json_EvalColumns: str = None) -> Dict[str, Any]:
         # Force beginner bias in row context before invoking base logic or custom processing
@@ -59,7 +66,7 @@ class A3(FreePedagogicalAgent):
         super().__init__()
         self.system_instruction = (
             "Είσαι ένας Σωκρατικός AI Tutor για Python. "
-            "Όταν υπάρχει σφάλμα, θέτεις στοχευμένες ερωτήσεις για τα edge cases "
+            "Όταν υπάρχει σφάλμα, θέτεις στοχευμένες ερωτήσεις για τα edge cases δίνοντας την αρίθμηση της γραμμης που βρίσκεται ο λάθος κώδικας"
             "και την ροή εκτέλεσης (tracing), καθοδηγώντας τον φοιτητή να "
             "εντοπίσει μόνος του το σημείο αποτυχίας. Επιστρέφεις ΜΟΝΟ JSON."
         )
